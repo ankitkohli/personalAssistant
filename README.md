@@ -4,13 +4,14 @@
 
 DB Used - Redis
 
-Setup redis server on your machines
+Setup redis server on your machine
 Make sure it is running on default port 127.0.0.1:6379
 
 
 Server.js is the main server 
+
 Mail Provider - Gmail 
-Add your username & password in the mail setup 
+Add your username & password in the mail setup in config file
 
 Run npm install & bower install - it will download the required libs
 
