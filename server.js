@@ -15,6 +15,10 @@
 	var EmailTemplate = require("email-templates").EmailTemplate; // load email templates	
 	var ejs = require('ejs');                                     // load ejs
 	var cron = require('node-schedule');                    // cron scheduler
+	var passport = require('passport');                     // passport for facebook login
+	var config = require('./configuration/auth');           // to read configuration
+	var FacebookStrategy  = require('passport-facebook').Strategy ;// facebook login strategy
+	var GoogleStrategy  = require('passport-google-oauth').OAuthStrategy;  // gmail login strategy
 
 
 // configuration =================
@@ -30,10 +34,11 @@
     app.use(bodyParser.json());                                     // parse application/json
     app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
     app.use(methodOverride());
+    app.use(passport.initialize());
+  	app.use(passport.session());
     app.set('view engine', 'ejs');
 
-    
-
+   
 
     // listen (start app with node server.js) ======================================
     app.listen(8080);
@@ -47,7 +52,7 @@
     /* This runs at the 15th mintue of every hour. */
     /* cron runs through all the tasks and if its due date is less than or equalt to 15 it shoots a mail to concerned 
      user .*/
-	cron.scheduleJob('1 * * * * *', function(){
+	cron.scheduleJob('*/15 * * * *', function(){
     	console.log('This runs at the 15th mintue of every hour.');
     	client.hgetall("userTodos", function(err, objs) {
     		for(var k in objs) {
@@ -97,8 +102,8 @@
     var smtpTransport = nodemailer.createTransport("SMTP",{
   		service: "Gmail",
    		auth: {
-       		user: "<your email id>",
-       		pass: "<your password>"
+       		user: config.email,
+       		pass: config.password
    		}
 	});	
  
@@ -110,7 +115,7 @@
     			return console.error(err)
   			}
  		smtpTransport.sendMail({
-  			from: "<your email id>", // sender address
+  			from: config.email, // sender address
    			to: mailer.user.email, // comma separated list of receivers
    			subject: "Your personal Assistant", // Subject line
    			html: results.html,
@@ -124,6 +129,65 @@
 			});
 		});
 	}
+// facebook login ==============================================================
+
+	passport.serializeUser(function(user, done) {
+  		done(null, user);
+	});
+	passport.deserializeUser(function(obj, done) {
+ 		done(null, obj);
+	});
+	passport.use(new FacebookStrategy({
+    	clientID: config.facebook_api_key,
+	    clientSecret:config.facebook_api_secret ,
+    	callbackURL: config.facebook_callback_url
+  	},
+  	function(accessToken, refreshToken, profile, done) {
+    	process.nextTick(function () {
+	      	//Check whether the User exists or not using profile.id
+	      	//Further DB code.
+	      	console.log("Welcome " + profile.displayName + " could not login you into the application .Please try normal method");
+      		return done(null, profile);
+    		});
+  		}
+	));	
+
+
+	//Passport Router
+	app.get('/auth/facebook', passport.authenticate('facebook'));
+	app.get('/auth/facebook/callback',
+  	passport.authenticate('facebook', { 
+    	    successRedirect : '/', 
+       		failureRedirect: '/' 
+  	}),
+  	function(req, res) {
+    	res.redirect('/');
+  	});
+
+// Gmail Login ================================================================
+
+	passport.use(new GoogleStrategy({
+    		consumerKey: config.google_api_key,
+   			consumerSecret: config.google_api_secret,
+    		callbackURL: config.google_callback_url
+  		},
+  		function(token, tokenSecret, profile, done) {
+   			User.findOrCreate({ googleId: profile.id }, function (err, user) {
+      		return done(err, user);
+    		});
+  		}
+	));
+
+	// The request will be redirected to Google for authentication, so
+    // this function will not be called.
+	app.get('/auth/google',passport.authenticate('google'));
+
+	app.get('/auth/google/callback', 
+  		passport.authenticate('google', { failureRedirect: '/login' }),
+  		function(req, res) {
+    		// Successful authentication, redirect home.
+    	res.redirect('/');
+  	});
 
 // routes ======================================================================
 
