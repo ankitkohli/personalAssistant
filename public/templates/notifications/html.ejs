@@ -1,0 +1,5 @@
+<h1>Your Personal Assistant</h1>
+<h1>Hi there <%= user.email %></h1>
+<h2>Your Upcoming Task - <%=user.task.name%> @ <%=user.task.dueDate%></h2>
+<p><a href="http://localhost:8080/deleteTask?task_id=<%= user.task.id %>&user_id=<%= user.id%>">Delete Task</a></p></br>
+<p><a href="http://localhost:8080/snoozeTask?task_id=<%= user.task.id %>&user_id=<%= user.id%>">Snooze Task</a></p>

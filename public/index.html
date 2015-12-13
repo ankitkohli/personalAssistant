@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html lang="en" ng-app="personalAssist">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<style type="text/css">
+.custom-date-style {
+	background-color: red !important;
+}
+.input{	
+}
+.input-wide{
+	width: 500px;
+}
+</style>
+
+    <!-- META -->
+    <meta charset="utf-8">
+
+    <title>Personal Assistant</title>
+
+    <!-- SCROLLS -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"><!-- load bootstrap -->
+     <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/datetimepicker.css">
+
+    <!-- endstyles -->
+
+    <!-- DEPENDENCIES  -->
+    <script src="bower_components/jquery/jquery.min.js"></script><!-- load jquery -->
+    <script src="bower_components/angular/angular.min.js"></script><!-- load angular -->
+    <!-- GOOGLE MAP API -->
+    <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDk_iQ6QWOTHW-TWoXSFLwbcnhaxlcnXXk&libraries=places&sensor=true"></script>
+	<!-- SCRIPTS -->
+    <script src="locator/locator.min.js"></script>
+    <script src="locator/locator-tpl.js"></script>
+    <script src="script.js"></script>
+    <script type="text/javascript" src="datetimepicker/datetimepicker.js"></script>
+
+
+
+
+</head>
+<!-- SET THE CONTROLLER AND LOGIN FORM -->
+<body ng-controller="mainController">
+  <div class="container" id="loginPage" ng-hide="loggedIn">
+	    <div id="todo-form" class="row">
+			<div class="col-sm-8 col-sm-offset-2 text-center">
+                <form>
+                    <div class="form-group">
+
+                    	<div>
+                    		<input type="text" class="form-control input-lg text-center" placeholder="Enter your email " ng-model="formUser.email" ng-required>
+                    	</div>
+                    	<div>
+							<input type="password" class="form-control input-lg text-center" placeholder="Enter Password"  ng-model="formUser.password" ng-required/><br><br>
+						</div>
+						<!-- createToDo() WILL CREATE NEW TODOS -->
+                   		 <button type="submit" class="btn btn-primary btn-lg" ng-click="registerUser()">Register</button>
+                   		 <button type="submit" class="btn btn-primary btn-lg" ng-click="loginUser()">Login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- ADD TASK FORM-->
+    <div class="container" ng-show="loggedIn">
+	    <div id="todo-form" class="row">
+			<div class="col-sm-8 col-sm-offset-2 text-center">
+                <form>
+                    <div class="form-group">
+
+                    	<div>
+                    		<input type="text" class="form-control input-lg text-center" placeholder="Enter your task" ng-model="formData.task">
+                    	</div>
+                    	<div class="column black flex-item" id="location" style="position: relative;top: 5px;left: 175px;">
+      						<location-lookup ng-model="formData.lookedUpLocation" placeholder="Enter location" limit-to="4" ></location-lookup >
+      					</div>
+      					<div>
+							<input type="text" class="form-control input-lg text-center" placeholder="Enter Time" id="datetimepicker" ng-model="formData.time"/><br><br>
+						</div>
+						<!-- createToDo() WILL CREATE NEW TODOS -->
+                   		 <button type="submit" class="btn btn-primary btn-lg" ng-click="createTask()">Add</button>
+					</div>
+				</form>
+				<div ng-if="formData.lookedUpLocation">
+                	<h2>Selected Location</h2>
+                	<p id="selectedLocation" ng-if="formData.lookedUpLocation">Name: <span class="muted">{{formData.lookedUpLocation.name}}</span><br/>Description: <span class="muted">{{formData.lookedUpLocation.description}}</span><br/>Latitude: <span class="muted">{{formData.lookedUpLocation.latitude}}</span><br/>Longitude: <span class="muted">{{formData.lookedUpLocation.longitude}}</span>
+                	<span class="muted">{{formData.time}}</span></p>
+                </div>
+
+                <div class="column blue flex-item" style="position: relative;top: 200px;left: 100px;">
+      				<h2>Location Picker </h2>
+      				<location-picker ng-model="formData.pickedLocation" limit-to="2"></location-picker>
+    			</div>
+    			<div ng-if="formData.pickedLocation" style="position: relative;left: -200px;">
+                <h3 ng-if="formData.pickedLocation">Picked Location</h3>
+        		<p ng-if="formData.pickedLocation">Name: <span class="muted">{{formData.pickedLocation.name}}</span><br/>Description: <span class="muted">{{formData.pickedLocation.description}}</span><br/>Latitude: <span class="muted">{{formData.pickedLocation.latitude}}</span><br/>Longitude: <span class="muted">{{formData.pickedLocation.longitude}}</span></p>
+        		</div>
+			</div>
+		</div>	
+  	</div>
+</body>
+    <script src="bower_components/jquery/jquery.min.js"></script><!-- load jquery -->
+    <script type="text/javascript" src="datetimepicker/datetimepicker.js"></script>
+
+<script>/*
+window.onerror = function(errorMsg) {
+	$('#console').html($('#console').html()+'<br>'+errorMsg)
+}*/
+$.datetimepicker.setLocale('en');
+$('#datetimepicker_format').datetimepicker({value:'2015/04/15 05:03', format: $("#datetimepicker_format_value").val()});
+$("#datetimepicker_format_change").on("click", function(e){
+	$("#datetimepicker_format").data('xdsoft_datetimepicker').setOptions({format: $("#datetimepicker_format_value").val()});
+});
+$("#datetimepicker_format_locale").on("change", function(e){
+	$.datetimepicker.setLocale($(e.currentTarget).val());
+});
+$('#datetimepicker').datetimepicker({
+dayOfWeekStart : 1,
+lang:'en',
+disabledDates:['1986/01/08','1986/01/09','1986/01/10'],
+minDate: 0,
+startDate: '-0m'
+});
+$('#datetimepicker').datetimepicker({value:'2015/04/15 05:03',step:10});
+$('.some_class').datetimepicker();
+$('#default_datetimepicker').datetimepicker({
+	formatTime:'H:i',
+	formatDate:'d.m.Y',
+	//defaultDate:'8.12.1986', // it's my birthday
+	defaultDate:'+03.01.1970', // it's my birthday
+	defaultTime:'10:00',
+	timepickerScrollbar:false
+});
+$('#datetimepicker10').datetimepicker({
+	step:5,
+	inline:true
+});
+$('#datetimepicker_mask').datetimepicker({
+	mask:'9999/19/39 29:59'
+});
+$('#datetimepicker1').datetimepicker({
+	datepicker:false,
+	format:'H:i',
+	step:5
+});
+$('#datetimepicker2').datetimepicker({
+	yearOffset:222,
+	lang:'ch',
+	timepicker:false,
+	format:'d/m/Y',
+	formatDate:'Y/m/d',
+	minDate:'-1970/01/02', // yesterday is minimum date
+	maxDate:'+1970/01/02' // and tommorow is maximum date calendar
+});
+$('#datetimepicker3').datetimepicker({
+	inline:true
+});
+$('#datetimepicker4').datetimepicker();
+$('#open').click(function(){
+	$('#datetimepicker4').datetimepicker('show');
+});
+$('#close').click(function(){
+	$('#datetimepicker4').datetimepicker('hide');
+});
+$('#reset').click(function(){
+	$('#datetimepicker4').datetimepicker('reset');
+});
+$('#datetimepicker5').datetimepicker({
+	datepicker:false,
+	allowTimes:['12:00','13:00','15:00','17:00','17:05','17:20','19:00','20:00'],
+	step:5
+});
+$('#datetimepicker6').datetimepicker();
+$('#destroy').click(function(){
+	if( $('#datetimepicker6').data('xdsoft_datetimepicker') ){
+		$('#datetimepicker6').datetimepicker('destroy');
+		this.value = 'create';
+	}else{
+		$('#datetimepicker6').datetimepicker();
+		this.value = 'destroy';
+	}
+});
+var logic = function( currentDateTime ){
+	if (currentDateTime && currentDateTime.getDay() == 6){
+		this.setOptions({
+			minTime:'11:00'
+		});
+	}else
+		this.setOptions({
+			minTime:'8:00'
+		});
+};
+$('#datetimepicker7').datetimepicker({
+	onChangeDateTime:logic,
+	onShow:logic
+});
+$('#datetimepicker8').datetimepicker({
+	onGenerate:function( ct ){
+		$(this).find('.xdsoft_date')
+			.toggleClass('xdsoft_disabled');
+	},
+	minDate:'-1970/01/2',
+	maxDate:'+1970/01/2',
+	timepicker:false
+});
+$('#datetimepicker9').datetimepicker({
+	onGenerate:function( ct ){
+		$(this).find('.xdsoft_date.xdsoft_weekend')
+			.addClass('xdsoft_disabled');
+	},
+	weekends:['01.01.2014','02.01.2014','03.01.2014','04.01.2014','05.01.2014','06.01.2014'],
+	timepicker:false
+});
+var dateToDisable = new Date();
+	dateToDisable.setDate(dateToDisable.getDate() + 2);
+$('#datetimepicker11').datetimepicker({
+	beforeShowDay: function(date) {
+		if (date.getMonth() == dateToDisable.getMonth() && date.getDate() == dateToDisable.getDate()) {
+			return [false, ""]
+		}
+		return [true, ""];
+	}
+});
+$('#datetimepicker12').datetimepicker({
+	beforeShowDay: function(date) {
+		if (date.getMonth() == dateToDisable.getMonth() && date.getDate() == dateToDisable.getDate()) {
+			return [true, "custom-date-style"];
+		}
+		return [true, ""];
+	}
+});
+$('#datetimepicker_dark').datetimepicker({theme:'dark'})
+</script>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "locator",
+  "version": "0.1.0",
+  "description": "a set of google location services for angularJS",
+  "main": [
+    "dist/locator.min.js"
+  ],
+  "license": "MIT",
+   "ignore": [
+    "example"
+  ],
+  "dependencies": {
+    "angular": "1.2.16",
+    "jquery":"2.0.3",
+    "jquery-mousewheel": ">= 3.1.13",
+    "date-functions": "~0.0.1"
+  },
+  "devDependencies": {
+    "angular-mocks": "1.2.16",
+    "q": "1"
+  }
+}
