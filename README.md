@@ -3,6 +3,8 @@
 [This a project to demonstrate personal assistant application.]
 
 DB Used - Redis
+Keys - usersData - to store user info 
+     - userTodos - to store user tasks
 
 Setup redis server on your machine
 Make sure it is running on default port 127.0.0.1:6379
